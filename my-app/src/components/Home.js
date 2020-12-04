@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
+import {Link} from 'react-router-dom';
 
 class Home extends Component {
 
  render() {
   return (
           <div>
-            <a href="/labtech"> labtech login </a>
+            <Link to="/labtech">
+              <button>LabTech Login</button>
+            </Link>
             <br/>
-            <a href="/employee"> employee login </a>
+            <Link to="/employee">
+              <button>Employee Login</button>
+            </Link>
           </div>
     );
   }

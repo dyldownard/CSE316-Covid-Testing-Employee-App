@@ -5,6 +5,7 @@ import {Switch, Route, withRouter} from 'react-router-dom'
 import Home from './components/Home'
 import LabTech from './components/LabTech'
 import Employee from './components/Employee'
+import LabHome from './components/LabHome'
 
 class App extends Component {
   constructor(props) {
@@ -36,6 +37,7 @@ class App extends Component {
           <Switch>
             <Route path="/labtech"  render={()=><LabTech/>}/>
             <Route path="/employee" render={()=><Employee/>}/>
+            <Route path="/labhome"  render={()=><LabHome/>}/>
             <Route path="/"         render={()=><Home/>}/>
           </Switch>
     </div>
