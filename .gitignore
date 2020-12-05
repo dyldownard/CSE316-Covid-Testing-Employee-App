@@ -48,3 +48,4 @@ my-app/.eslintcache
 my-app/.eslintcache
 my-app/package-lock.json
 my-app/package.json
+*.json
