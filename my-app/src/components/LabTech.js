@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import {Link, withRouter} from 'react-router-dom';
 import { Grid, Form, Header, Message } from 'semantic-ui-react';
-import createBrowserHistory from 'history/createBrowserHistory';
-const history = createBrowserHistory();
 
 class LabTech extends Component {
 
@@ -20,19 +18,25 @@ class LabTech extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onSubmit(e) {
+  callAPI = async () => {     //callAPI is our function, async is telling it that this is an async task
+    const { username, password } = this.state;
+    await fetch('http://localhost:9000/loginLabAPI/?labid='+username+'&pass='+password)
+    .then(res => res.json())
+    .then(json => this.setState({ apiResponse: json }));
+  }
+
+  async onSubmit(e) {
 
     e.preventDefault();
 
-    const { username, password } = this.state;
-
     this.setState({ error: false });
-
-    if (!(username === 'george' && password === 'foreman')) {   //TODO add credentials via mysql
+    await this.callAPI();
+    console.log(this.state.apiResponse)
+    if (this.state.apiResponse.length !== 1) {   //TODO add credentials via mysql
       return this.setState({ error: true });
     }
 
-    console.log(this.state.apiResponse)
+
     console.log("you're logged in. yay!");
     this.props.history.push('/labhome');
   }

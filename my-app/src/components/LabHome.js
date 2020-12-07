@@ -4,7 +4,6 @@ import {Link, withRouter} from "react-router-dom";
 class LabHome extends Component {
 
     render() {
-      console.log(this.props.location.passProp)
       return (
         <div>
         <Link to="/labtech">
