@@ -11,11 +11,11 @@ var conn = mysql.createConnection({
 
 conn.connect();
 
-router.get('/', function(request, response){
+router.get('/', function(request, response) {
   let labID = request.query.labid;
   let pass = request.query.pass;
-  conn.query("SELECT * FROM labemployee WHERE labID = '" + labID + "' AND password = '" + pass +"';", function(error, results){
-    if ( error ){
+  conn.query("SELECT * FROM labemployee WHERE labID = '" + labID + "' AND password = '" + pass + "';", function(error, results) {
+    if (error) {
       response.status(400).send('Error in database operation');
     } else {
       response.send(results);

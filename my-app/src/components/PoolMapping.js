@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Grid, Form, Header, Message } from 'semantic-ui-react';
 
-class LabHome extends Component {
+class PoolMapping extends Component {
 
   render() {
     return (
@@ -14,15 +14,15 @@ class LabHome extends Component {
             <Grid.Column width={4}>
               <Form>
                 <Header as="h1">Lab Employee Login</Header>
-                <Link to="/testcol">
+                <Link to="/">
                   <button>Test Collection</button>
                 </Link>
                 <br/>
-                <Link to="/poolmap">
+                <Link to="/">
                   <button>Pool Mapping</button>
                 </Link>
                 <br/>
-                <Link to="/welltest">
+                <Link to="/">
                   <button>Well Testing</button>
                 </Link>
               </Form>
@@ -32,4 +32,4 @@ class LabHome extends Component {
   }
 }
 
-export default withRouter(LabHome);
+export default withRouter(PoolMapping);

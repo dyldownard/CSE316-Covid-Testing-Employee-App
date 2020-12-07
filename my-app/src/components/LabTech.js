@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Link, withRouter} from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { Grid, Form, Header, Message } from 'semantic-ui-react';
 
 class LabTech extends Component {
@@ -18,11 +18,11 @@ class LabTech extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  callAPI = async () => {     //callAPI is our function, async is telling it that this is an async task
+  callAPI = async () => { //callAPI is our function, async is telling it that this is an async task
     const { username, password } = this.state;
-    await fetch('http://localhost:9000/loginLabAPI/?labid='+username+'&pass='+password)
-    .then(res => res.json())
-    .then(json => this.setState({ apiResponse: json }));
+    await fetch('http://localhost:9000/loginLabAPI/?labid=' + username + '&pass=' + password)
+      .then(res => res.json())
+      .then(json => this.setState({ apiResponse: json }));
   }
 
   async onSubmit(e) {
@@ -32,7 +32,7 @@ class LabTech extends Component {
     this.setState({ error: false });
     await this.callAPI();
     console.log(this.state.apiResponse)
-    if (this.state.apiResponse.length !== 1) {   //TODO add credentials via mysql
+    if (this.state.apiResponse.length !== 1) { //TODO add credentials via mysql
       return this.setState({ error: true });
     }
 
@@ -42,20 +42,22 @@ class LabTech extends Component {
   }
 
   handleChange(e, { name, value }) {
-    this.setState({ [name]: value });
+    this.setState({
+      [name]: value
+    });
   }
 
- render() {
-  const { error } = this.state;
-  return (
+  render() {
+    const { error } = this.state;
+    return (
 
-        <Grid>
+      <Grid>
         <Link to="/">
           <button>Back</button>
         </Link>
         <Grid.Column width={4}>
           <Form error={error} onSubmit={this.onSubmit}>
-            <Header as="h1">Login</Header>
+            <Header as="h1">Lab Employee Login</Header>
             {error && <Message
               error={error}
               content="That username/password is incorrect. Try again!"
