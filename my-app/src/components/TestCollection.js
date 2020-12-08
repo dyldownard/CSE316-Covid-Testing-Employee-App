@@ -49,14 +49,14 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function StickyHeadTable() {
+export default function TestCollection() {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const [data, setData] = useState([]);
-
   const [refreshKey, setRefreshKey] = useState(0);
+
   const [isDelInvalid, setDelInvalid] = useState(false);
   const [isDelInvalidText, setDelInvalidText] = useState("");
 
@@ -159,9 +159,8 @@ export default function StickyHeadTable() {
     console.log(data);
   }, [refreshKey]);
 
-  const testFun = async e => {
+  const cellClicked = async e => {
     removeTestId.current.value = e.target.innerHTML;
-    removeTestId.current.focus();
   }
 
 
@@ -176,8 +175,8 @@ export default function StickyHeadTable() {
       <br/>
       <form className={classes.root} noValidate autoComplete="off">
       <div>
-        <TextField required error={isIDInvalid} helperText={isIDInvalidText} inputRef={addEmpId} id="standard-required" label="Employee ID" defaultValue="" />
-        <TextField required error={isCodeInvalid} helperText={isCodeInvalidText} inputRef={addTestId} id="standard-required" label="Test ID" defaultValue="" />
+        <TextField InputLabelProps={{shrink: true}} required error={isIDInvalid} helperText={isIDInvalidText} inputRef={addEmpId} id="standard-required" label="Employee ID" defaultValue="" />
+        <TextField InputLabelProps={{shrink: true}} required error={isCodeInvalid} helperText={isCodeInvalidText} inputRef={addTestId} id="standard-required" label="Test ID" defaultValue="" />
         <Button
         variant="contained"
         color="default"
@@ -189,7 +188,7 @@ export default function StickyHeadTable() {
       <br/>
       <br/>
       <div>
-        <TextField required error={isDelInvalid} helperText={isDelInvalidText} inputRef={removeTestId} id="standard-required" label="Test ID" defaultValue="" />
+        <TextField InputLabelProps={{shrink: true}} required error={isDelInvalid} helperText={isDelInvalidText} inputRef={removeTestId} id="standard-required" label="Test ID" defaultValue="" />
         <Button
        variant="contained"
        color="secondary"
@@ -225,7 +224,7 @@ export default function StickyHeadTable() {
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell onClick={testFun} key={column.id} align={column.align}>
+                      <TableCell onClick={cellClicked} key={column.id} align={column.align}>
                         {column.format && typeof value === 'number' ? column.format(value) : value}
                       </TableCell>
                     );
