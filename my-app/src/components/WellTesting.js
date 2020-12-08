@@ -61,6 +61,14 @@ export default function WellTesting() {
   const [data, setData] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const poolCodeRef = useRef(); //reference
+  const wellCodeRef = useRef(); //reference
+
+  const [isPoolCodeInvalid, setPoolCodeInvalid] = useState(false);
+  const [isPoolCodeInvalidText, setPoolCodeInvalidText] = useState("");
+  const [isWellCodeInvalid, setWellCodeInvalid] = useState(false);
+  const [isWellCodeInvalidText, setWellCodeInvalidText] = useState("");
+
   const [status, setStatus] = React.useState('');
 
   const handleChangePage = (event, newPage) => {
@@ -73,22 +81,67 @@ export default function WellTesting() {
   };
 
   const onSubmitClick = async e => {
-    //if a well does not exist, create one.
-    //otherwise simple submit
+    e.preventDefault();
+    const createResult = await createAPI();
+    const result = await submitAPI();
+    if (result.status === 450) {
+      setPoolCodeInvalid(true);
+      setPoolCodeInvalidText("Pool is already associate with a well")
+      setWellCodeInvalid(false);
+      setWellCodeInvalidText("")
+    } else {
+      setPoolCodeInvalid(false);
+      setPoolCodeInvalidText("")
+      setWellCodeInvalid(false);
+      setWellCodeInvalidText("")
+      poolCodeRef.current.value = ""
+      wellCodeRef.current.value = ""
+      setRefreshKey(oldKey => oldKey + 1)
+    }
   }
 
   const onEditClick = async e => {
     //for the specific well/pool match, UPDATE the test status
+    const result = await editAPI();
+    console.log(result);
+    setRefreshKey(oldKey => oldKey + 1)
   }
 
   const onDeleteClick = async e => {
     //delete the welltest from the table, but do not delete the well. wells are physical things that shouldn't* be deleted by a program
     // * - idk maybe that's what he wants
-
+    e.preventDefault();
+    const result = await deleteAPI();
+    setPoolCodeInvalid(false);
+    setPoolCodeInvalidText("")
+    setWellCodeInvalid(false);
+    setWellCodeInvalidText("")
+    poolCodeRef.current.value = ""
+    wellCodeRef.current.value = ""
+    setRefreshKey(oldKey => oldKey + 1)
   }
 
+  const createAPI = async () => {
+    const resp = await fetch('http://localhost:9000/wellTestingAPI/create?wellcode=' + wellCodeRef.current.value);
+    return resp;
+  }
 
-  useEffect(async () => { // like componentdidmount, runs at start
+  const submitAPI = async () => {
+    const resp = await fetch('http://localhost:9000/wellTestingAPI/submit?wellcode=' + wellCodeRef.current.value + '&poolcode=' + poolCodeRef.current.value + '&result=' + status);
+    return resp;
+  }
+
+  const editAPI = async () => {
+    const resp = await fetch('http://localhost:9000/wellTestingAPI/edit?poolcode=' + poolCodeRef.current.value + '&result=' + status);
+    return resp;
+  }
+
+  const deleteAPI = async () => {
+    const resp = await fetch('http://localhost:9000/wellTestingAPI/del?poolcode=' + poolCodeRef.current.value);
+    return resp;
+  }
+
+  useEffect(async () => { // any time the component is told to rerender, this is called
     async function retrieveData() {
       const resp = await fetch('http://localhost:9000/wellTestingAPI/ret')
       setData(resp);
@@ -110,7 +163,27 @@ export default function WellTesting() {
   }, [refreshKey]);
 
   const cellClicked = async e => {
-
+    let poolcodeStr = "";
+    let wellcodeStr = "";
+    let resultStr = "";
+    if (e.target.nextSibling === null) {
+      //clicked result, use previous sibling to get your info
+      poolcodeStr = e.target.previousSibling.innerHTML;
+      wellcodeStr = e.target.previousSibling.previousSibling.innerHTML;
+      resultStr = e.target.innerHTML;
+    } else if (e.target.previousSibling === null) {
+      //clicked well
+      poolcodeStr = e.target.nextSibling.innerHTML;
+      wellcodeStr = e.target.innerHTML;
+      resultStr = e.target.nextSibling.nextSibling.innerHTML;
+    } else {
+      poolcodeStr = e.target.innerHTML;
+      wellcodeStr = e.target.previousSibling.innerHTML;
+      resultStr = e.target.nextSibling.innerHTML;
+    }
+    wellCodeRef.current.value = wellcodeStr;
+    poolCodeRef.current.value = poolcodeStr;
+    setStatus(resultStr);
   }
 
   const handleChange = (event) => {
@@ -128,10 +201,10 @@ export default function WellTesting() {
       <br/>
       <form className={classes.root} noValidate autoComplete="off">
       <div>
-        <TextField InputLabelProps={{shrink: true}}  required id="standard-required" label="Well Barcode" defaultValue="" />
+        <TextField InputLabelProps={{shrink: true}} error={isWellCodeInvalid} helperText={isWellCodeInvalidText} inputRef={wellCodeRef} required id="standard-required" label="Well Barcode" defaultValue="" />
         <br/>
         <br/>
-        <TextField InputLabelProps={{shrink: true}}  required id="standard-required" label="Pool Barcode" defaultValue="" />
+        <TextField InputLabelProps={{shrink: true}} error={isPoolCodeInvalid} helperText={isPoolCodeInvalidText} inputRef={poolCodeRef} required id="standard-required" label="Pool Barcode" defaultValue="" />
         <br/>
         <br/>
         <br/>
@@ -147,8 +220,8 @@ export default function WellTesting() {
           displayEmpty
         >
           <MenuItem value={""}>In Progress</MenuItem>
-          <MenuItem value={"Neg"}>Negative</MenuItem>
-          <MenuItem value={"Pos"}>Positive</MenuItem>
+          <MenuItem value={"Negative"}>Negative</MenuItem>
+          <MenuItem value={"Positive"}>Positive</MenuItem>
         </Select>
          </FormControl>
 
@@ -164,7 +237,7 @@ export default function WellTesting() {
         startIcon={<CloudUploadIcon />}
       >Submit</Button>
       <Button
-
+        onClick={onEditClick}
       style={{margin: '5px'}}
      variant="contained"
      color="default"
@@ -172,7 +245,7 @@ export default function WellTesting() {
      startIcon={<EditIcon />}
    >Edit</Button>
       <Button
-
+        onClick={onDeleteClick}
       style={{margin: '5px'}}
      variant="contained"
      color="secondary"
