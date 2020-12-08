@@ -75,29 +75,23 @@ export default function PoolMapping() {
 
   const submitClicked = async e => {
     e.preventDefault();
-    const result = await createAPI();
+    const createResult = await createAPI();
+    const result = await submitAPI(testIdsRef.current.value.replace(/\s+/g, ''));
     if (result.status === 450) {
-      setPoolCodeInvalid(true);
-      setPoolCodeInvalidText("Pool already exists. Try EDIT")
+      setPoolCodeInvalid(false);
+      setPoolCodeInvalidText("")
+      setTestIdsInvalid(true);
+      setTestIdsInvalidText("One of these IDS already exist: try EDIT")
+    } else {
+      setPoolCodeInvalid(false);
+      setPoolCodeInvalidText("")
       setTestIdsInvalid(false);
       setTestIdsInvalidText("")
-    } else {
-      const result = await submitAPI(testIdsRef.current.value.replace(/\s+/g, ''));
-      if (result.status === 450) {
-        setPoolCodeInvalid(false);
-        setPoolCodeInvalidText("")
-        setTestIdsInvalid(true);
-        setTestIdsInvalidText("One of these IDS already exist: try EDIT")
-      } else {
-        setPoolCodeInvalid(false);
-        setPoolCodeInvalidText("")
-        setTestIdsInvalid(false);
-        setTestIdsInvalidText("")
-        poolCodeRef.current.value = ""
-        testIdsRef.current.value = ""
-        setRefreshKey(oldKey => oldKey + 1)
-      }
+      poolCodeRef.current.value = ""
+      testIdsRef.current.value = ""
+      setRefreshKey(oldKey => oldKey + 1)
     }
+
   };
 
   const deleteClicked = async e => {

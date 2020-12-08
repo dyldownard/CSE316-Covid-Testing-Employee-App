@@ -108,16 +108,6 @@ router.get('/pooldel', function(request, response) {
   });
 });
 
-router.get('/editdel', function(request, response) {
-  let poolcode = request.query.poolcode;
-  conn.query("DELETE FROM `covid-test`.`poolmap` WHERE (poolBarcode = " + poolcode + ");", function(error, results) {
-    if (error) {
-      response.status(400).send(results);
-    } else {
-      response.send(results);
-    }
-  });
-});
 
 
 module.exports = router;
