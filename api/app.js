@@ -9,6 +9,8 @@ var usersRouter = require('./routes/users');
 var testAPIRouter = require("./routes/testAPI");
 var loginLabRouter = require("./routes/loginLabAPI");
 var testCollectionAPI = require("./routes/testCollectionAPI");
+var poolMappingAPI = require("./routes/poolMappingAPI");
+var wellTestingAPI = require("./routes/wellTestingAPI");
 
 var app = express();
 
@@ -28,7 +30,8 @@ app.use('/users', usersRouter);
 app.use("/testAPI", testAPIRouter);
 app.use("/loginLabAPI", loginLabRouter);
 app.use("/testCollectionAPI", testCollectionAPI);
-
+app.use("/poolMappingAPI", poolMappingAPI);
+app.use("/wellTestingAPI", wellTestingAPI);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
