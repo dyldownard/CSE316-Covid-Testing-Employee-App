@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Grid, Form, Header, Message } from 'semantic-ui-react';
+import { Grid, Form, Header } from 'semantic-ui-react';
 
 class LabHome extends Component {
 
@@ -13,14 +13,16 @@ class LabHome extends Component {
             </Link>
             <Grid.Column width={4}>
               <Form>
-                <Header as="h1">Lab Employee Login</Header>
+                <Header as="h1">Lab Employee Home</Header>
                 <Link to="/testcol">
                   <button>Test Collection</button>
                 </Link>
                 <br/>
+                <br/>
                 <Link to="/poolmap">
                   <button>Pool Mapping</button>
                 </Link>
+                <br/>
                 <br/>
                 <Link to="/welltest">
                   <button>Well Testing</button>

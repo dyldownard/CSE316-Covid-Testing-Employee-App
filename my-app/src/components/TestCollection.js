@@ -1,25 +1,239 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import { Grid, Form, Header, Message } from 'semantic-ui-react';
+import React, { useRef, useEffect, useState } from "react";
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { Link } from 'react-router-dom';
 
-class TestCollection extends Component {
+const columns = [
+  { id: 'testid', label: 'Test ID', minWidth: 170 },
+  { id: 'employeeid', label: 'Employee ID', minWidth: 100 },
+];
 
-  render() {
-    return (<Grid>
-      <Link to="/">
-        <button>Back</button>
-      </Link>
-      <Grid.Column width={4}>
-        <Form error={error} onSubmit={this.onSubmit}>
-          <Header as="h1">Lab Employee Login</Header>
-          {error && <Message error={error} content="That username/password is incorrect. Try again!"/>}
-          <Form.Input inline="inline" label="Username" name="username" onChange={this.handleChange}/>
-          <Form.Input inline="inline" label="Password" type="password" name="password" onChange={this.handleChange}/>
-          <Form.Button type="submit">Go!</Form.Button>
-        </Form>
-      </Grid.Column>
-    </Grid>);
-  }
+function createData(testid, employeeid) {
+  return { testid, employeeid };
+}
+const rows = [];
+//createData('A', 'B'),
+
+function clearRows() {
+  rows.length = 0;
+  return;
 }
 
-export default withRouter(TestCollection);
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '50%',
+    margin: 'auto',
+  },
+  '& .MuiTextField-root': {
+    margin: theme.spacing(1),
+    width: 200,
+  },
+  container: {
+    maxHeight: 440,
+  },
+}));
+
+
+
+export default function StickyHeadTable() {
+  const classes = useStyles();
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  const [data, setData] = useState([]);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isDelInvalid, setDelInvalid] = useState(false);
+  const [isDelInvalidText, setDelInvalidText] = useState("");
+
+  const [isIDInvalid, setIDInvalid] = useState(false);
+  const [isIDInvalidText, setIDInvalidText] = useState("");
+
+  const [isCodeInvalid, setCodeInvalid] = useState(false);
+  const [isCodeInvalidText, setCodeInvalidText] = useState("");
+
+  const addEmpId = useRef(); //reference
+  const addTestId = useRef(); //reference
+  const removeTestId = useRef(); //reference
+
+  const addClicked = async e => { //add button clicked
+    e.preventDefault();
+    const result = await addAPI();
+    if (result.status === 450) {
+      setIDInvalid(false);
+      setIDInvalidText("")
+      setCodeInvalid(true);
+      setCodeInvalidText("This test already exists.")
+    } else if (result.status === 451) {
+      setCodeInvalid(false);
+      setCodeInvalidText("")
+      setIDInvalid(true);
+      setIDInvalidText("This employee does not exist.")
+    } else {
+      setIDInvalid(false);
+      setIDInvalidText("")
+      setCodeInvalid(false);
+      setCodeInvalidText("")
+      addEmpId.current.value = ""
+      addTestId.current.value = ""
+      setRefreshKey(oldKey => oldKey + 1)
+    }
+  };
+
+  const delClicked = async e => { //add button clicked
+    e.preventDefault();
+    setDelInvalid(false);
+    setDelInvalidText("")
+
+    const result = await delAPI();
+
+    setRefreshKey(oldKey => oldKey + 1)
+    if (result.affectedRows === 0) {
+      setDelInvalid(true);
+      setDelInvalidText("Barcode does not exist")
+    } else {
+      removeTestId.current.value = ""
+      setDelInvalid(false);
+      setDelInvalidText("")
+    }
+  };
+
+  const addAPI = async () => { //callAPI is our function, async is telling it that this is an async task
+    const resp = await fetch('http://localhost:9000/testCollectionAPI/add?empid=' + addEmpId.current.value + '&testid=' + addTestId.current.value);
+    return resp;
+  }
+
+  const delAPI = async () => { //callAPI is our function, async is telling it that this is an async task
+
+    const resp = await fetch('http://localhost:9000/testCollectionAPI/del?testid=' + removeTestId.current.value)
+    return resp.json();
+  }
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  useEffect(async () => { // like componentdidmount, runs at start
+    async function retrieveData() {
+      const resp = await fetch('http://localhost:9000/testCollectionAPI/ret')
+      setData(resp);
+      return resp.json();
+    }
+    const result = await retrieveData();
+    clearRows();
+    if (result.length !== rows.length) {
+      var i;
+      for (i = 0; i < result.length; i++) {
+        rows.push(createData(result[i].testBarcode, result[i].employeeID))
+      }
+    }
+    setData(result);
+    console.log(data);
+  }, [refreshKey]);
+
+  const testFun = async e => {
+    removeTestId.current.value = e.target.innerHTML;
+    removeTestId.current.focus();
+  }
+
+
+  return (
+    <div>
+      <h1> Test Collection </h1>
+      <Link to="/labhome">
+        <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
+      </Link>
+      <br/>
+      <br/>
+      <br/>
+      <form className={classes.root} noValidate autoComplete="off">
+      <div>
+        <TextField required error={isIDInvalid} helperText={isIDInvalidText} inputRef={addEmpId} id="standard-required" label="Employee ID" defaultValue="" />
+        <TextField required error={isCodeInvalid} helperText={isCodeInvalidText} inputRef={addTestId} id="standard-required" label="Test ID" defaultValue="" />
+        <Button
+        variant="contained"
+        color="default"
+        onClick={addClicked}
+        className={classes.button}
+        startIcon={<CloudUploadIcon />}
+      >Add</Button>
+      </div>
+      <br/>
+      <br/>
+      <div>
+        <TextField required error={isDelInvalid} helperText={isDelInvalidText} inputRef={removeTestId} id="standard-required" label="Test ID" defaultValue="" />
+        <Button
+       variant="contained"
+       color="secondary"
+       onClick={delClicked}
+       className={classes.button}
+       startIcon={<DeleteIcon />}
+     >Delete</Button>
+      </div>
+    </form>
+    <br/>
+    <br/>
+    <br/>
+    <Paper className={classes.root}>
+      <TableContainer className={classes.container}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                >
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell onClick={testFun} key={column.id} align={column.align}>
+                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </Paper>
+    </div>
+  );
+}

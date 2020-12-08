@@ -6,9 +6,13 @@ class Home extends Component {
   render() {
     return (
       <div>
+            <br/>
+            <br/>
             <Link to="/labtech">
               <button>LabTech Login</button>
             </Link>
+            <br/>
+            <br/>
             <br/>
             <Link to="/employee">
               <button>Employee Login</button>

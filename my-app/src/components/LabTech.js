@@ -64,7 +64,7 @@ class LabTech extends Component {
             />}
             <Form.Input
               inline
-              label="Username"
+              label="Lab ID"
               name="username"
               onChange={this.handleChange}
             />

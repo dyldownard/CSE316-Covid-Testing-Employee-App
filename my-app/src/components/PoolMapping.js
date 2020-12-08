@@ -1,35 +1,136 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import { Grid, Form, Header, Message } from 'semantic-ui-react';
+import React from "react";
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
-class PoolMapping extends Component {
+import { Link } from 'react-router-dom';
 
-  render() {
-    return (
+const columns = [
+  { id: 'poolcode', label: 'Pool Code', minWidth: 170 },
+  { id: 'testids', label: 'Test Barcodes', minWidth: 100 },
+];
 
-      <Grid>
-            <Link to="/">
-              <button>Back</button>
-            </Link>
-            <Grid.Column width={4}>
-              <Form>
-                <Header as="h1">Lab Employee Login</Header>
-                <Link to="/">
-                  <button>Test Collection</button>
-                </Link>
-                <br/>
-                <Link to="/">
-                  <button>Pool Mapping</button>
-                </Link>
-                <br/>
-                <Link to="/">
-                  <button>Well Testing</button>
-                </Link>
-              </Form>
-            </Grid.Column>
-          </Grid>
-    );
-  }
+
+const rows = [];
+
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '50%',
+    margin: 'auto',
+  },
+  '& .MuiTextField-root': {
+    margin: theme.spacing(1),
+    width: 200,
+  },
+  container: {
+    maxHeight: 440,
+  },
+}));
+
+
+
+export default function StickyHeadTable() {
+  const classes = useStyles();
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+
+
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+
+  return (
+    <div>
+      <h1> Pool Mapping </h1>
+      <Link to="/labhome">
+        <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
+      </Link>
+      <br/>
+      <br/>
+      <br/>
+      <form className={classes.root} noValidate autoComplete="off">
+      <div>
+        <TextField required id="standard-required" label="Pool Code" defaultValue="" />
+        <br/>
+        <br/>
+        <TextField required id="standard-required" label="Test ID(s)" defaultValue="" />
+        <br/>
+        <br/>
+        <br/>
+        <Button
+        variant="contained"
+        color="default"
+        className={classes.button}
+        startIcon={<CloudUploadIcon />}
+      >Add</Button>
+      </div>
+      <br/>
+    </form>
+    <br/>
+    <br/>
+    <br/>
+    <Paper className={classes.root}>
+      <TableContainer className={classes.container}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                >
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell key={column.id} align={column.align}>
+                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </Paper>
+    </div>
+  );
 }
-
-export default withRouter(PoolMapping);
