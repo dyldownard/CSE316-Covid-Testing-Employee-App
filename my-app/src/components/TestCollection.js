@@ -23,7 +23,10 @@ function createData(testid, employeeid) {
   return { testid, employeeid };
 }
 const rows = [];
-//createData('A', 'B'),
+
+function getDate() {
+  return new Date().toISOString().slice(0, 19).replace('T', ' ');
+}
 
 function clearRows() {
   rows.length = 0;
@@ -97,27 +100,36 @@ export default function StickyHeadTable() {
     setDelInvalidText("")
 
     const result = await delAPI();
-
     setRefreshKey(oldKey => oldKey + 1)
-    if (result.affectedRows === 0) {
+    if (result.status !== null && result.status === 452) {
       setDelInvalid(true);
-      setDelInvalidText("Barcode does not exist")
+      setDelInvalidText("Barcode exists in a pool.")
     } else {
-      removeTestId.current.value = ""
-      setDelInvalid(false);
-      setDelInvalidText("")
+      if (result.affectedRows === 0) {
+        setDelInvalid(true);
+        setDelInvalidText("Barcode does not exist")
+      } else {
+        removeTestId.current.value = ""
+        setDelInvalid(false);
+        setDelInvalidText("")
+      }
     }
   };
 
   const addAPI = async () => { //callAPI is our function, async is telling it that this is an async task
-    const resp = await fetch('http://localhost:9000/testCollectionAPI/add?empid=' + addEmpId.current.value + '&testid=' + addTestId.current.value);
+    const resp = await fetch('http://localhost:9000/testCollectionAPI/add?empid=' + addEmpId.current.value + '&testid=' + addTestId.current.value + '&date=' + getDate());
     return resp;
   }
 
   const delAPI = async () => { //callAPI is our function, async is telling it that this is an async task
-
     const resp = await fetch('http://localhost:9000/testCollectionAPI/del?testid=' + removeTestId.current.value)
-    return resp.json();
+
+    if (resp.status === 452) {
+      console.log(resp);
+      return resp;
+    } else {
+      return resp.json();
+    }
   }
 
   const handleChangePage = (event, newPage) => {

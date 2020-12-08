@@ -25,7 +25,8 @@ router.get('/ret', function(request, response) {
 router.get('/add', function(request, response) {
   let empid = request.query.empid;
   let testid = request.query.testid;
-  conn.query("INSERT INTO `covid-test`.`employeetest` (`testBarcode`, `employeeID`) VALUES (\'" + testid + "\', \'" + empid + "\');", function(error, results) {
+  let date = request.query.date;
+  conn.query("INSERT INTO `covid-test`.`employeetest` (`testBarcode`, `employeeID`, `collectionTime`) VALUES (\'" + testid + "\', \'" + empid + "\', \'" + date + "\');", function(error, results) {
     if (error) {
       if (error.errno === 1062) {
         response.status(450).send(results);
@@ -44,7 +45,11 @@ router.get('/del', function(request, response) {
   let testid = request.query.testid;
   conn.query("DELETE FROM `covid-test`.`employeetest` WHERE (`testBarcode` = \'" + testid + "\');", function(error, results) {
     if (error) {
-      response.status(400).send('Error in database operation');
+      if (error.errno === 1451) {
+        response.status(452).send(results);
+      } else {
+        response.status(400).send(results);
+      }
     } else {
       response.send(results);
     }
