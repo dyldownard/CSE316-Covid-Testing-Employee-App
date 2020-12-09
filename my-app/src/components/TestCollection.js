@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -141,7 +142,23 @@ export default function TestCollection() {
     setPage(0);
   };
 
+  const history = useHistory();
+
+  const linkPressed = async (path, labID) => {
+    history.push({
+      pathname: path,
+      state: {
+        labID: labID,
+      }
+    })
+  }
+
   useEffect(async () => { // like componentdidmount, runs at start
+    if (history.location.state === undefined || history.location.state.labID === "" || history.location.state.labID === undefined) {
+      history.push('/labtech')
+      return;
+    }
+
     async function retrieveData() {
       const resp = await fetch('http://localhost:9000/testCollectionAPI/ret')
       setData(resp);
@@ -160,16 +177,21 @@ export default function TestCollection() {
   }, [refreshKey]);
 
   const cellClicked = async e => {
-    removeTestId.current.value = e.target.innerHTML;
+    let testIDStr = "";
+    if (e.target.nextSibling === null) {
+      //clicked test barcode, use previous sibling to get your info
+      testIDStr = e.target.previousSibling.innerHTML;
+    } else {
+      testIDStr = e.target.innerHTML;
+    }
+    removeTestId.current.value = testIDStr;
   }
 
 
   return (
     <div>
-      <h1> Test Collection </h1>
-      <Link to="/labhome">
-        <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
-      </Link>
+      <h1 style={{fontFamily: "roboto"}}> Test Collection </h1>
+      <Button onClick={(data: any) => { {linkPressed('/labhome', history.location.state.labID);}}} variant="contained" color="primary" href="">Back</Button>
       <br/>
       <br/>
       <br/>

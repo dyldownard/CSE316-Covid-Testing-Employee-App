@@ -1,26 +1,54 @@
-import React, { Component } from 'react';
+import React from "react";
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 
-class Home extends Component {
 
-  render() {
-    return (
-      <div>
-            <br/>
-            <br/>
-            <Link to="/labtech">
-              <button>LabTech Login</button>
-            </Link>
-            <br/>
-            <br/>
-            <br/>
-            <Link to="/employee">
-              <button>Employee Login</button>
-            </Link>
-          </div>
-    );
-  }
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '50%',
+    margin: 'auto',
+  },
+  '& .MuiTextField-root': {
+    margin: theme.spacing(1),
+    width: 200,
+  },
+  container: {
+    maxHeight: 440,
+  },
+}));
 
+
+
+export default function Home() {
+  const classes = useStyles();
+
+  return (
+    <div>
+        <h1 style={{fontFamily: "roboto"}}> Home </h1>
+      <br/>
+      <br/>
+      <Link to="/labtech">
+      <Button
+        style={{margin: '5px'}}
+        variant="contained"
+        color="default"
+        className={classes.button}
+        >
+          Lab Login
+      </Button>
+    </Link>
+      <br/>
+      <Link to="/employee">
+      <Button
+        style={{margin: '5px'}}
+        variant="contained"
+        color="default"
+        className={classes.button}
+        >
+          Employee Login
+      </Button>
+    </Link>
+    </div>
+  );
 }
-
-export default Home;

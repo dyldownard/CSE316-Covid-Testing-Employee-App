@@ -1,86 +1,87 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import { Grid, Form, Header, Message } from 'semantic-ui-react';
+  import React, { useState, useRef, useEffect } from "react";
+  import { useHistory } from "react-router-dom";
+  import { makeStyles } from '@material-ui/core/styles';
+  import Button from '@material-ui/core/Button';
+  import TextField from '@material-ui/core/TextField';
+  import { Link } from 'react-router-dom';
 
-class LabTech extends Component {
 
-  constructor(props) {
-    super(props);
+  const useStyles = makeStyles((theme) => ({
+    root: {
+      width: '50%',
+      margin: 'auto',
+    },
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+      width: 200,
+    },
+    container: {
+      maxHeight: 440,
+    },
+  }));
 
-    this.state = {
-      username: '',
-      password: '',
-      error: false,
-      apiResponse: "",
-    };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-  }
 
-  callAPI = async () => { //callAPI is our function, async is telling it that this is an async task
-    const { username, password } = this.state;
-    await fetch('http://localhost:9000/loginLabAPI/?labid=' + username + '&pass=' + password)
-      .then(res => res.json())
-      .then(json => this.setState({ apiResponse: json }));
-  }
+  export default function LabTech() {
+    const classes = useStyles();
 
-  async onSubmit(e) {
+    const [isUserInvalid, setUserInvalid] = useState(false);
+    const [isUserInvalidText, setUserInvalidText] = useState("");
 
-    e.preventDefault();
+    const userInputRef = useRef(); //reference
+    const passInputRef = useRef(); //reference
 
-    this.setState({ error: false });
-    await this.callAPI();
-    console.log(this.state.apiResponse)
-    if (this.state.apiResponse.length !== 1) { //TODO add credentials via mysql
-      return this.setState({ error: true });
+    const history = useHistory();
+
+    const goClicked = async () => {
+      submitCredentials();
     }
 
+    const submitCredentials = async () => {
+      async function retrieveData() {
+        const resp = await fetch('http://localhost:9000/loginLabAPI/?labid=' + userInputRef.current.value + '&pass=' + passInputRef.current.value);
+        return resp.json();
+      }
+      const result = await retrieveData();
+      if (result.length === 1) {
+        console.log("logged!")
+        setUserInvalid(false);
+        setUserInvalidText("")
+        history.push({
+          pathname: '/labhome',
+          state: {
+            labID: userInputRef.current.value,
+          }
+        })
+      } else {
+        setUserInvalid(true);
+        setUserInvalidText("Credentials did not match")
+      }
+    }
 
-    console.log("you're logged in. yay!");
-    this.props.history.push('/labhome');
-  }
-
-  handleChange(e, { name, value }) {
-    this.setState({
-      [name]: value
+    useEffect(() => { // like componentdidmount, runs at start
+      console.log("LabID Cleared!")
     });
-  }
 
-  render() {
-    const { error } = this.state;
     return (
-
-      <Grid>
-        <Link to="/">
-          <button>Back</button>
-        </Link>
-        <Grid.Column width={4}>
-          <Form error={error} onSubmit={this.onSubmit}>
-            <Header as="h1">Lab Employee Login</Header>
-            {error && <Message
-              error={error}
-              content="That username/password is incorrect. Try again!"
-            />}
-            <Form.Input
-              inline
-              label="Lab ID"
-              name="username"
-              onChange={this.handleChange}
-            />
-            <Form.Input
-              inline
-              label="Password"
-              type="password"
-              name="password"
-              onChange={this.handleChange}
-            />
-            <Form.Button type="submit">Go!</Form.Button>
-          </Form>
-        </Grid.Column>
-      </Grid>
+      <div>
+          <h1 style={{fontFamily: "roboto"}}> Lab Employee Login </h1>
+          <Link to="/home">
+            <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
+          </Link>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <TextField  onKeyPress={(data: any) => { if (data.charCode === 13) {submitCredentials();}}}
+          InputLabelProps={{shrink: true}} required error={isUserInvalid} helperText={isUserInvalidText} inputRef={userInputRef} id="standard-required" label="Lab ID" defaultValue="" />
+        <br/>
+        <br/>
+        <TextField onKeyPress={(data: any) => { if (data.charCode === 13) {submitCredentials();}}}
+          type="password"  InputLabelProps={{shrink: true}} required  inputRef={passInputRef} id="standard-required" label="Password" defaultValue="" />
+        <br/>
+        <br/>
+        <Button onClick={goClicked} variant="contained" color="primary" href="">Go!</Button>
+      </div>
     );
   }
-}
-
-export default withRouter(LabTech);

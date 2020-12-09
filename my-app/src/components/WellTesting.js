@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -141,7 +142,23 @@ export default function WellTesting() {
     return resp;
   }
 
+  const history = useHistory();
+
+  const linkPressed = async (path, labID) => {
+    history.push({
+      pathname: path,
+      state: {
+        labID: labID,
+      }
+    })
+  }
+
   useEffect(async () => { // any time the component is told to rerender, this is called
+    if (history.location.state === undefined || history.location.state.labID === "" || history.location.state.labID === undefined) {
+      history.push('/labtech')
+      return;
+    }
+
     async function retrieveData() {
       const resp = await fetch('http://localhost:9000/wellTestingAPI/ret')
       setData(resp);
@@ -192,10 +209,8 @@ export default function WellTesting() {
 
   return (
     <div>
-      <h1> Well Testing </h1>
-      <Link to="/labhome">
-        <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
-      </Link>
+      <h1 style={{fontFamily: "roboto"}}> Well Testing </h1>
+        <Button onClick={(data: any) => { {linkPressed('/labhome', history.location.state.labID);}}} variant="contained" color="primary" href="">Back</Button>
       <br/>
       <br/>
       <br/>
