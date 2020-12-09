@@ -67,7 +67,7 @@
       <div>
           <h1 style={{fontFamily: "roboto"}}> Lab Employee Login </h1>
           <Link to="/home">
-            <Button variant="contained" color="primary" href="#contained-buttons">Back</Button>
+            <Button variant="contained" color="primary" href="">Back</Button>
           </Link>
         <br/>
         <br/>

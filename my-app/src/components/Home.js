@@ -39,7 +39,7 @@ export default function Home() {
       </Button>
     </Link>
       <br/>
-      <Link to="/employee">
+      <Link to="/employeelogin">
       <Button
         style={{margin: '5px'}}
         variant="contained"
